@@ -11,7 +11,7 @@ type Message = {
 };
 
 function App() {
-    const [chatId, setChatId] = useState<number>(26329673);
+    const [chatId, setChatId] = useState<number>(26329675);
     const [username, setUsername] = useState<string>('guest');
     const [messages, setMessages] = useState<Message[]>([]);
     const [roomList, setRoomList] = useState<{ id: number; title: string }[]>(
@@ -41,9 +41,7 @@ function App() {
     useEffect(() => {
         if (roomList.length === 0) {
             setRoomList([
-                { id: 26329673, title: '一号聊天室' },
-                { id: 26329674, title: '二号聊天室' },
-                { id: 26329678, title: '三号聊天室' },
+                { id: 26329675, title: '项目大群' },
             ]);
             localStorage.setItem('roomList', JSON.stringify(roomList));
         } else {
