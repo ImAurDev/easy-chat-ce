@@ -60,6 +60,7 @@ class XESCloudValue {
             const dic: Record<string, string> = {};
 
             const timeoutId = setTimeout(() => {
+                console.log(this.valueData.handShakeData().project_id)
                 ws.close();
                 reject(new Error('获取数据超时'));
             }, 30000);
