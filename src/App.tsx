@@ -209,6 +209,7 @@ function App() {
                         value={input}
                         onChange={v => setInput(v)}
                         placeholder="请输入文本"
+                        onEnterPress={handleSend}
                         className="flex-1"
                     />
                     <Button type="primary" onClick={handleSend}>
