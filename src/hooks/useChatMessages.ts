@@ -3,6 +3,13 @@ import { toast } from 'sonner';
 import { XESCloudValue, MessageCacheManager } from '@/lib/XesCloud';
 import type { Message as ChatMessage, Message } from '@/components/MessageBuddle';
 
+export interface IFile {
+    name: string;
+    link: string;
+    size: string;
+    time: string;
+}
+
 export const parseMessages = (allMessages: Record<string, string>): ChatMessage[] => {
     const parsed: ChatMessage[] = [];
     Object.entries(allMessages).forEach(([payload, timestampStr]) => {
@@ -126,9 +133,31 @@ export function useChatMessages(chatId: number, username: string) {
         }
     };
 
+    const sendFile = async (file: IFile) => {
+        if (!xRef.current) return;
+        const message: Message = {
+            username,
+            msg: JSON.stringify(file),
+            time: Date.now() / 1000,
+            type: 'share',
+        };
+        try {
+            await xRef.current.sendNum(JSON.stringify(message), String(Date.now() / 1000));
+            cacheManagerRef.current.clear(chatId);
+            const freshMessages = await xRef.current.getAllNum();
+            cacheManagerRef.current.set(chatId, freshMessages);
+            setMessages(parseMessages(freshMessages));
+            toast.success('发送成功');
+        } catch (e) {
+            toast.error('发送失败');
+            console.error(`发送文件失败: ${e}`);
+        }
+    };
+
     return {
         messages,
         isSending,
         sendMessage,
+        sendFile,
     };
 }

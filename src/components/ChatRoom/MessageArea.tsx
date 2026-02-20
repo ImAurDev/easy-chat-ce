@@ -2,8 +2,20 @@ import { useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SendIcon } from 'lucide-react';
+import { FileUpIcon, SendIcon } from 'lucide-react';
 import { MessageBubble, type Message as ChatMessage } from '@/components/MessageBuddle';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '../ui/alert-dialog';
+import type { IFile } from '@/hooks/useChatMessages';
 
 const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -22,6 +34,7 @@ interface MessageAreaProps {
     onSend: () => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     chatId: string;
+    sendFile: (file: IFile) => void;
 }
 
 export function MessageArea({
@@ -34,8 +47,10 @@ export function MessageArea({
     onSend,
     onKeyDown,
     chatId,
+    sendFile,
 }: MessageAreaProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -58,12 +73,9 @@ export function MessageArea({
                 <h1 className="text-lg font-bold">{roomName}</h1>
                 <span className="text-gray-500 text-sm">ID: {chatId}</span>
             </div>
-            <ScrollArea
-                ref={scrollAreaRef}
-                className="flex-1 h-[calc(100%-124px)] p-4 relative"
-            >
+            <ScrollArea ref={scrollAreaRef} className="flex-1 h-[calc(100%-124px)] p-4 relative">
                 {messages.length === 0 ? (
-                    <div className="h-full flex items-center justify-center text-gray-400">暂无消息</div>
+                    <div className="h-full flex items-center justify-center text-gray-400">消息正在加载中...</div>
                 ) : (
                     messages.map((message, index) => (
                         <MessageBubble
@@ -77,6 +89,33 @@ export function MessageArea({
             </ScrollArea>
 
             <div className="p-3 flex gap-2 items-center bg-white border-t">
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button size="icon-sm" disabled={isSending || !isConnected}>
+                            <FileUpIcon />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>分享文件</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                <iframe src="https://new-xes-pan.netlify.app/upload" />
+                                <p>请将文件在这里上传，后来把数据填入下方表单</p>
+                                <Input placeholder="请输入给你的数据" ref={inputRef} />
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>取消</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => {
+                                    sendFile(JSON.parse(inputRef.current?.value || ''));
+                                }}
+                            >
+                                分享
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 <Input
                     disabled={isSending || !isConnected}
                     value={input}

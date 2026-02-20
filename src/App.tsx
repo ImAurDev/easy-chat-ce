@@ -18,7 +18,7 @@ function App() {
 
     const { chatId, setChatId, roomList, isCreatingRoom, createRoom, joinRoom, deleteRoom } = useRoomManager(26329675);
 
-    const { messages, isSending, sendMessage } = useChatMessages(chatId, username);
+    const { messages, isSending, sendMessage, sendFile } = useChatMessages(chatId, username);
 
     const [input, setInput] = useState('');
 
@@ -66,6 +66,7 @@ function App() {
                 onSend={handleSend}
                 onKeyDown={handleKeyDown}
                 chatId={chatId.toString()}
+                sendFile={sendFile}
             />
         </div>
     );
