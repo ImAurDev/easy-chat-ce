@@ -4,6 +4,8 @@ import { useRoomManager } from './hooks/useRoomManager';
 import { useUsername } from './hooks/useUsername';
 import { ChatRoomSidebar } from '@/components/ChatRoom/ChatRoomSidebar';
 import { MessageArea } from './components/ChatRoom/MessageArea';
+import InitProfilePage from '@/pages/InitProfile.tsx';
+import type { KeyboardEvent } from 'react';
 
 function App() {
     const {
@@ -18,7 +20,10 @@ function App() {
 
     const { chatId, setChatId, roomList, isCreatingRoom, createRoom, joinRoom, deleteRoom } = useRoomManager(26329675);
 
-    const { messages, isSending, sendMessage, sendFile } = useChatMessages(chatId, username);
+    const { messages, isSending, sendMessage, sendFile } = useChatMessages(
+        chatId,
+        typeof username === 'string' ? username : '',
+    );
 
     const [input, setInput] = useState('');
 
@@ -27,7 +32,7 @@ function App() {
         if (success) setInput('');
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();
@@ -36,38 +41,42 @@ function App() {
 
     const isConnected = Boolean(chatId);
 
+    if (!username) return <InitProfilePage />;
+
     return (
         <div className="h-screen flex">
-            <ChatRoomSidebar
-                roomList={roomList}
-                currentRoomId={chatId}
-                username={username}
-                isEditingName={isEditingName}
-                editNameInput={editNameInput}
-                isCreatingRoom={isCreatingRoom}
-                isConnected={isConnected}
-                onRoomSelect={setChatId}
-                onRoomDelete={deleteRoom}
-                onUsernameEditStart={startNameEdit}
-                onUsernameEditCancel={cancelNameEdit}
-                onUsernameEditInputChange={setEditNameInput}
-                onUsernameSave={saveUsername}
-                onCreateRoom={() => createRoom(username)}
-                onJoinRoom={joinRoom}
-            />
+            <>
+                <ChatRoomSidebar
+                    roomList={roomList}
+                    currentRoomId={chatId}
+                    username={username}
+                    isEditingName={isEditingName}
+                    editNameInput={editNameInput}
+                    isCreatingRoom={isCreatingRoom}
+                    isConnected={isConnected}
+                    onRoomSelect={setChatId}
+                    onRoomDelete={deleteRoom}
+                    onUsernameEditStart={startNameEdit}
+                    onUsernameEditCancel={cancelNameEdit}
+                    onUsernameEditInputChange={setEditNameInput}
+                    onUsernameSave={saveUsername}
+                    onCreateRoom={() => createRoom(username)}
+                    onJoinRoom={joinRoom}
+                />
 
-            <MessageArea
-                messages={messages}
-                currentUsername={username}
-                input={input}
-                isSending={isSending}
-                isConnected={isConnected}
-                onInputChange={setInput}
-                onSend={handleSend}
-                onKeyDown={handleKeyDown}
-                chatId={chatId.toString()}
-                sendFile={sendFile}
-            />
+                <MessageArea
+                    messages={messages}
+                    currentUsername={username}
+                    input={input}
+                    isSending={isSending}
+                    isConnected={isConnected}
+                    onInputChange={setInput}
+                    onSend={handleSend}
+                    onKeyDown={handleKeyDown}
+                    chatId={chatId.toString()}
+                    sendFile={sendFile}
+                />
+            </>
         </div>
     );
 }
