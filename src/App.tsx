@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { XESCloudValue, MessageCacheManager } from './utils/XesCloud';
+import { XESCloudValue, MessageCacheManager } from './lib/XesCloud';
 import { CheckIcon, DeleteIcon, EditIcon, LogInIcon, PlusIcon, SendIcon, XIcon } from 'lucide-react';
 import { MessageBubble, type Message as ChatMessage } from '@/components/MessageBuddle';
 
