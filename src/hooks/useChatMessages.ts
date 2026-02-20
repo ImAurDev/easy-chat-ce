@@ -1,7 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { XESCloudValue, MessageCacheManager } from '@/lib/XesCloud';
-import type { Message as ChatMessage } from '@/components/MessageBuddle';
+import type { Message as ChatMessage, Message } from '@/components/MessageBuddle';
+
+export const parseMessages = (allMessages: Record<string, string>): ChatMessage[] => {
+    const parsed: ChatMessage[] = [];
+    Object.entries(allMessages).forEach(([payload, timestampStr]) => {
+        try {
+            const parsedJson = JSON.parse(payload);
+            const time = Number(timestampStr) || Number(parsedJson.time) || 0;
+            parsed.push({
+                username: parsedJson.username || '未知用户',
+                msg: parsedJson.msg || '',
+                time,
+                type: parsedJson.type === 'name' ? 'name' : undefined,
+            });
+        } catch (e) {
+            toast.error('解析消息失败');
+            console.warn('解析消息失败:', e, payload);
+        }
+    });
+    return parsed.sort((a, b) => a.time - b.time);
+};
 
 export function useChatMessages(chatId: number, username: string) {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -35,25 +55,6 @@ export function useChatMessages(chatId: number, username: string) {
             xRef.current.clearCache();
             xRef.current = null;
         }
-    };
-
-    const parseMessages = (allMessages: Record<string, string>): ChatMessage[] => {
-        const parsed: ChatMessage[] = [];
-        Object.entries(allMessages).forEach(([payload, timestampStr]) => {
-            try {
-                const parsedJson = JSON.parse(payload);
-                const time = Number(timestampStr) || Number(parsedJson.time) || 0;
-                parsed.push({
-                    username: parsedJson.username || '未知用户',
-                    msg: parsedJson.msg || '',
-                    time,
-                });
-            } catch (e) {
-                toast.error('解析消息失败');
-                console.warn('解析消息失败:', e, payload);
-            }
-        });
-        return parsed.sort((a, b) => a.time - b.time);
     };
 
     const fetchMessages = async () => {
@@ -100,16 +101,15 @@ export function useChatMessages(chatId: number, username: string) {
 
         setIsSending(true);
         try {
-            const time = String(Date.now() / 1000);
+            const time = Date.now() / 1000;
             const payload = JSON.stringify({
                 username: username || '匿名用户',
                 msg: content.trim(),
-                time,
-            });
+                time
+            } as Message);
 
-            await xRef.current.sendNum(payload, time);
+            await xRef.current.sendNum(payload, String(time));
 
-            // 清除缓存并刷新
             cacheManagerRef.current.clear(chatId);
             const freshMessages = await xRef.current.getAllNum();
             cacheManagerRef.current.set(chatId, freshMessages);

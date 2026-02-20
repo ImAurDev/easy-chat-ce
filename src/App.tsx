@@ -65,6 +65,7 @@ function App() {
                 onInputChange={setInput}
                 onSend={handleSend}
                 onKeyDown={handleKeyDown}
+                chatId={chatId.toString()}
             />
         </div>
     );

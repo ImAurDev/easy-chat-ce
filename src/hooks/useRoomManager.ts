@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { XESCloudValue } from '@/lib/XesCloud';
+import { parseMessages } from './useChatMessages';
+import type { Message } from '@/components/MessageBuddle';
 
 type Room = {
     id: number;
@@ -29,13 +31,15 @@ export function useRoomManager(initialChatId: number) {
         setIsCreatingRoom(true);
         try {
             const projectId = String(Math.floor(Math.random() * 1000000000));
-            const newXesInstance = new XESCloudValue(projectId);
-            const time = String(Date.now() / 1000);
-            const data = { username, msg: 'Init.', time };
-            await newXesInstance.sendNum(JSON.stringify(data), time);
-
             const roomId = Number(projectId);
-            setRoomList(prev => [...prev, { id: roomId, title: `房间${roomId}` }]);
+            const roomName = prompt('请输入房间名称') || `房间${roomId}`;
+
+            const newXesInstance = new XESCloudValue(projectId);
+            const time = Date.now() / 1000;
+            const data: Message = { username, msg: roomName, time, type: 'name' };
+            await newXesInstance.sendNum(JSON.stringify(data), time.toString());
+
+            setRoomList(prev => [...prev, { id: roomId, title: roomName }]);
             setChatId(roomId);
             await navigator.clipboard.writeText(projectId);
             toast.success('新聊天室创建成功，聊天室ID已复制，发给好友即可加入');
@@ -50,12 +54,18 @@ export function useRoomManager(initialChatId: number) {
         }
     };
 
-    const joinRoom = (roomIdInput: string | null) => {
+    const joinRoom = async (roomIdInput: string | null) => {
         if (!roomIdInput) return;
 
         const roomId = Number(roomIdInput);
         if (!roomList.some(room => room.id === roomId)) {
-            setRoomList(prev => [...prev, { id: roomId, title: `房间${roomId}` }]);
+            const newXesInstance = new XESCloudValue(roomIdInput);
+            const messages = parseMessages(await newXesInstance.getAllNum());
+            let roomName = `房间${roomId}`;
+            const nameMessage = messages.find(message => message.type === 'name');
+            roomName = nameMessage?.msg || '';
+
+            setRoomList(prev => [...prev, { id: roomId, title: roomName }]);
             setChatId(roomId);
         }
     };

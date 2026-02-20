@@ -20,6 +20,7 @@ interface MessageAreaProps {
     onInputChange: (value: string) => void;
     onSend: () => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+    chatId: string;
 }
 
 export function MessageArea({
@@ -31,10 +32,25 @@ export function MessageArea({
     onInputChange,
     onSend,
     onKeyDown,
+    chatId
 }: MessageAreaProps) {
+    const nameMessage = messages.find(message => message.type === 'name');
+    let roomName = nameMessage?.msg || `房间${chatId}`;
+    if (chatId === '26329675') {
+        roomName = '项目大群';
+    }
+
     return (
         <div className="flex-1 flex flex-col">
-            <ScrollArea className="flex-1 h-[calc(100%-64px)] p-4 relative">
+            <div className="p-3 flex gap-2 border-b items-end">
+                <h1 className="text-lg font-bold">
+                    {roomName}
+                </h1>
+                <span className="text-gray-500 text-sm">
+                    ID: {chatId}
+                </span>
+            </div>
+            <ScrollArea className="flex-1 h-[calc(100%-124px)] p-4 relative">
                 {messages.length === 0 ? (
                     <div className="h-full flex items-center justify-center text-gray-400">暂无消息</div>
                 ) : (
