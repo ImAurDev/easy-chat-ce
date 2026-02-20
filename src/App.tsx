@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { XESCloudValue, MessageCacheManager } from './utils/XesCloud';
-import { LogInIcon, PlusIcon, SendIcon } from 'lucide-react';
+import { CheckIcon, DeleteIcon, EditIcon, LogInIcon, PlusIcon, SendIcon, XIcon } from 'lucide-react';
 import { MessageBubble, type Message as ChatMessage } from '@/components/MessageBuddle';
 
 type Room = {
@@ -40,6 +40,9 @@ function App() {
         }),
     );
     const sendButtonRef = useRef<HTMLButtonElement | null>(null);
+
+    const [isEditingName, setIsEditingName] = useState<boolean>(false);
+    const [editNameInput, setEditNameInput] = useState<string>('');
 
     useEffect(() => {
         const stored = localStorage.getItem('username');
@@ -205,46 +208,108 @@ function App() {
         }
     };
 
+    const handleDeleteRoom = (roomId: number) => {
+        setRoomList(prev => {
+            const newList = prev.filter(room => room.id !== roomId);
+            if (roomId === chatId) {
+                if (newList.length > 0) {
+                    setChatId(newList[0].id);
+                } else {
+                    const defaultRoom = { id: 26329675, title: '项目大群' };
+                    setChatId(defaultRoom.id);
+                    return [defaultRoom];
+                }
+            }
+            return newList;
+        });
+    };
+
     return (
         <div className="h-screen flex">
             <div className="w-56 p-4 bg-gray-50 flex flex-col border-r">
                 <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">选择聊天室</h4>
                 <ScrollArea className="flex-1 max-h-1/2 p-2 my-2 border rounded">
                     {roomList.map((item: Room, index) => (
-                        <div key={item.id} className="mb-2">
-                            <Button
-                                disabled={!xRef.current}
-                                variant={chatId === item.id ? 'default' : 'secondary'}
-                                onClick={() => {
-                                    setChatId(item.id);
-                                }}
-                                className="w-full"
-                            >
-                                {item.title}
-                            </Button>
+                        <>
+                            <div key={item.id} className="mb-2 flex items-center gap-2">
+                                <Button
+                                    disabled={!xRef.current}
+                                    variant={chatId === item.id ? 'default' : 'secondary'}
+                                    onClick={() => {
+                                        setChatId(item.id);
+                                    }}
+                                    className="flex-1"
+                                >
+                                    {item.title}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        handleDeleteRoom(item.id);
+                                    }}
+                                    className="shrink-0"
+                                    title="删除房间"
+                                >
+                                    <DeleteIcon className="h-4 w-4" />
+                                </Button>
+                            </div>
                             {index !== roomList.length - 1 && <Separator className="my-2" />}
-                        </div>
+                        </>
                     ))}
                 </ScrollArea>
                 <Separator className="my-2" />
                 <div className="mt-4">
                     <div className="mb-2">当前用户：</div>
                     <div className="mb-3 flex items-center">
-                        {username}
-                        <Button
-                            className="ml-2"
-                            variant="outline"
-                            size="xs"
-                            onClick={() => {
-                                const n = window.prompt('输入新的用户名：', username || '');
-                                if (n) {
-                                    localStorage.setItem('username', n);
-                                    setUsername(n);
-                                }
-                            }}
-                        >
-                            切换用户名
-                        </Button>
+                        {isEditingName ? (
+                            <>
+                                <Input
+                                    value={editNameInput === '' ? username : editNameInput}
+                                    onChange={e => setEditNameInput(e.target.value)}
+                                    onBlur={() => {
+                                        setIsEditingName(false);
+                                    }}
+                                    placeholder="请输入用户名"
+                                    className="w-24"
+                                />
+                                <Button
+                                    variant={'ghost'}
+                                    size={'icon-sm'}
+                                    onClick={() => {
+                                        setIsEditingName(false);
+                                        setUsername(editNameInput);
+                                        localStorage.setItem('username', editNameInput);
+                                    }}
+                                >
+                                    <CheckIcon />
+                                </Button>
+                                <Button
+                                    variant={'ghost'}
+                                    size={'icon-sm'}
+                                    onClick={() => {
+                                        setIsEditingName(false);
+                                    }}
+                                >
+                                    <XIcon />
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                {username}
+                                <Button
+                                    className="ml-1"
+                                    variant="outline"
+                                    size={'icon-sm'}
+                                    onClick={() => {
+                                        setIsEditingName(true);
+                                    }}
+                                >
+                                    <EditIcon />
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     <Separator className="my-4" />
