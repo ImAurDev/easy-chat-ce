@@ -1,10 +1,12 @@
 import { AvatarGroupCount } from '@/components/ui/avatar';
+import type { IFile } from '@/hooks/useChatMessages';
+import { DownloadIcon, FileTextIcon } from 'lucide-react';
 
 export type Message = {
     username: string;
     msg: string;
     time: number;
-    type?: 'name';
+    type?: 'name' | 'share';
 };
 
 type MessageBubbleProps = {
@@ -15,6 +17,10 @@ type MessageBubbleProps = {
 
 export const MessageBubble = ({ message, currentUsername, formatTime }: MessageBubbleProps) => {
     const isCurrentUser = message.username === currentUsername;
+    let fileData: IFile | null = null;
+    if (message.type === 'share') {
+        fileData = JSON.parse(message.msg);
+    }
 
     return (
         <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
@@ -38,7 +44,44 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
                                         : 'bg-surface border border-border text-text-primary rounded-bl-none'
                                 }`}
                             >
-                                <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
+                                {message.type !== 'share' ? (
+                                    <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
+                                ) : (
+                                    <div className="flex flex-col gap-1 w-full max-w-md">
+                                        <div
+                                            className={`flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70`}
+                                        >
+                                            <div
+                                                className={`w-10 h-10 border rounded flex items-center justify-center shrink-0 ${isCurrentUser ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20' : 'bg-background border-border'}`}
+                                            >
+                                                <FileTextIcon
+                                                    size={20}
+                                                    className={
+                                                        isCurrentUser
+                                                            ? 'text-white/80 dark:text-black/80'
+                                                            : 'text-text-secondary'
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex-1 min-w-25">
+                                                <p className={`text-sm font-medium truncate`}>
+                                                    {fileData?.name || '未知文件名'}
+                                                </p>
+                                                <p className={`text-xs text-secondary`}>
+                                                    {fileData?.size || '未知大小'}
+                                                </p>
+                                            </div>
+                                            <a
+                                                href={`https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData?.name}&file=${fileData?.link.split('python_assets/')[1]}`}
+                                                className={`p-2 rounded transition-colors shrink-0 ${isCurrentUser ? 'text-white dark:text-black' : ''}`}
+                                                title="下载"
+                                                target={'_blank'}
+                                            >
+                                                <DownloadIcon size={18} />
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
