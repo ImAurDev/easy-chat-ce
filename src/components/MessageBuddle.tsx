@@ -4,6 +4,13 @@ import { cn } from '@/lib/utils';
 import type { IFile } from '@/hooks/useChatMessages';
 import { DownloadIcon, FileTextIcon, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuGroup,
+    ContextMenuItem,
+    ContextMenuTrigger,
+} from '@/components/ui/context-menu.tsx';
 
 export type Message = {
     username: string;
@@ -79,44 +86,58 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
                                     <div className="flex flex-col gap-1 w-full max-w-md">
                                         {isImage ? (
                                             <div className="relative group">
-                                                <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-                                                    <DialogTrigger asChild>
-                                                        <img
-                                                            src={fileData?.link}
-                                                            alt={fileData?.name}
-                                                            className="max-w-full max-h-64 rounded-lg object-contain cursor-zoom-in"
-                                                            onError={() => setImageError(true)}
-                                                            onLoad={resetImageError}
-                                                        />
-                                                    </DialogTrigger>
-                                                    <DialogContent className="max-w-4xl w-full h-auto p-0 bg-transparent border-none shadow-none">
-                                                        <div className="relative flex items-center justify-center">
-                                                            <img
-                                                                src={fileData?.link}
-                                                                alt={fileData?.name}
-                                                                className="max-w-full max-h-[90vh] object-contain"
-                                                            />
-                                                            <DialogClose className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
-                                                                <X size={20} />
-                                                            </DialogClose>
-                                                        </div>
-                                                    </DialogContent>
-                                                </Dialog>
-                                                <a
-                                                    href={downloadUrl}
-                                                    className={cn(
-                                                        'absolute top-2 right-2 p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100',
-                                                        isCurrentUser
-                                                            ? 'bg-white/20 text-white hover:bg-white/30'
-                                                            : 'bg-background/80 text-text-secondary hover:bg-background',
-                                                    )}
-                                                    title="下载"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onClick={e => e.stopPropagation()}
-                                                >
-                                                    <DownloadIcon size={18} />
-                                                </a>
+                                                <ContextMenu>
+                                                    <ContextMenuTrigger>
+                                                        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+                                                            <DialogTrigger asChild>
+                                                                <img
+                                                                    src={fileData?.link}
+                                                                    alt={fileData?.name}
+                                                                    className="max-w-full max-h-64 rounded-t-2xl rounded-br-2xl object-contain cursor-zoom-in"
+                                                                    onError={() => setImageError(true)}
+                                                                    onLoad={resetImageError}
+                                                                />
+                                                            </DialogTrigger>
+                                                            <DialogContent className="max-w-4xl w-full h-auto p-0 bg-transparent border-none shadow-none">
+                                                                <div className="relative flex items-center justify-center">
+                                                                    <img
+                                                                        src={fileData?.link}
+                                                                        alt={fileData?.name}
+                                                                        className="max-w-full max-h-[90vh] object-contain"
+                                                                    />
+                                                                    <DialogClose className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                                                                        <X size={20} />
+                                                                    </DialogClose>
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                        <a
+                                                            href={downloadUrl}
+                                                            className={cn(
+                                                                'absolute top-2 right-2 p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100',
+                                                                isCurrentUser
+                                                                    ? 'bg-white/20 text-white hover:bg-white/30'
+                                                                    : 'bg-background/80 text-text-secondary hover:bg-background',
+                                                            )}
+                                                            title="下载"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            onClick={e => e.stopPropagation()}
+                                                        >
+                                                            <DownloadIcon size={18} />
+                                                        </a>
+                                                    </ContextMenuTrigger>
+
+                                                    <ContextMenuContent>
+                                                        <ContextMenuGroup>
+                                                            <ContextMenuItem
+                                                                onClick={() => (window.open(downloadUrl))}
+                                                            >
+                                                                下载
+                                                            </ContextMenuItem>
+                                                        </ContextMenuGroup>
+                                                    </ContextMenuContent>
+                                                </ContextMenu>
                                             </div>
                                         ) : (
                                             <div
