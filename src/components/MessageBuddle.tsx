@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AvatarGroupCount } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import type { IFile } from '@/hooks/useChatMessages';
@@ -16,12 +17,26 @@ type MessageBubbleProps = {
     formatTime: (timestamp: number) => string;
 };
 
+const isImageFile = (filename: string): boolean => {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const ext = filename.split('.').pop()?.toLowerCase();
+    return ext ? imageExtensions.includes(ext) : false;
+};
+
 export const MessageBubble = ({ message, currentUsername, formatTime }: MessageBubbleProps) => {
     const isCurrentUser = message.username === currentUsername;
+    const [imageError, setImageError] = useState(false);
+
     let fileData: IFile | null = null;
     if (message.type === 'share') {
-        fileData = JSON.parse(message.msg);
+        try {
+            fileData = JSON.parse(message.msg);
+        } catch {
+            fileData = null;
+        }
     }
+
+    const resetImageError = () => setImageError(false);
 
     return (
         <div className={cn('flex mb-4', isCurrentUser ? 'justify-end' : 'justify-start')}>
@@ -51,47 +66,76 @@ export const MessageBubble = ({ message, currentUsername, formatTime }: MessageB
                                     <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
                                 ) : (
                                     <div className="flex flex-col gap-1 w-full max-w-md">
-                                        <div
-                                            className={cn(
-                                                'flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70',
-                                            )}
-                                        >
+                                        {fileData && isImageFile(fileData.name) && !imageError ? (
+                                            <div className="relative">
+                                                <img
+                                                    src={fileData.link}
+                                                    alt={fileData.name}
+                                                    className="max-w-full max-h-64 rounded-lg object-contain"
+                                                    onError={() => setImageError(true)}
+                                                    onLoad={resetImageError}
+                                                />
+                                                <a
+                                                    href={`https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData.name}&file=${fileData.link.split('python_assets/')[1]}`}
+                                                    className={cn(
+                                                        'absolute top-2 right-2 p-2 rounded-full transition-colors',
+                                                        isCurrentUser
+                                                            ? 'bg-white/20 text-white hover:bg-white/30'
+                                                            : 'bg-background/80 text-text-secondary hover:bg-background',
+                                                    )}
+                                                    title="下载"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={e => e.stopPropagation()}
+                                                >
+                                                    <DownloadIcon size={18} />
+                                                </a>
+                                            </div>
+                                        ) : (
                                             <div
                                                 className={cn(
-                                                    'w-10 h-10 border rounded flex items-center justify-center shrink-0',
-                                                    isCurrentUser
-                                                        ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
-                                                        : 'bg-background border-border',
+                                                    'flex items-center gap-3 p-3 border rounded-lg transition-colors opacity-70',
                                                 )}
                                             >
-                                                <FileTextIcon
-                                                    size={20}
+                                                <div
                                                     className={cn(
+                                                        'w-10 h-10 border rounded flex items-center justify-center shrink-0',
                                                         isCurrentUser
-                                                            ? 'text-white/80 dark:text-black/80'
-                                                            : 'text-text-secondary',
+                                                            ? 'bg-white/10 border-white/20 dark:bg-black/10 dark:border-black/20'
+                                                            : 'bg-background border-border',
                                                     )}
-                                                />
+                                                >
+                                                    <FileTextIcon
+                                                        size={20}
+                                                        className={cn(
+                                                            isCurrentUser
+                                                                ? 'text-white/80 dark:text-black/80'
+                                                                : 'text-text-secondary',
+                                                        )}
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-25">
+                                                    <p className="text-sm font-medium truncate">
+                                                        {fileData?.name || '未知文件名'}
+                                                    </p>
+                                                    <p className="text-xs text-secondary">
+                                                        {fileData?.size || '未知大小'}
+                                                    </p>
+                                                </div>
+                                                <a
+                                                    href={`https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData?.name}&file=${fileData?.link.split('python_assets/')[1]}`}
+                                                    className={cn(
+                                                        'p-2 rounded transition-colors shrink-0',
+                                                        isCurrentUser && 'text-white dark:text-black',
+                                                    )}
+                                                    title="下载"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <DownloadIcon size={18} />
+                                                </a>
                                             </div>
-                                            <div className="flex-1 min-w-25">
-                                                <p className="text-sm font-medium truncate">
-                                                    {fileData?.name || '未知文件名'}
-                                                </p>
-                                                <p className="text-xs text-secondary">{fileData?.size || '未知大小'}</p>
-                                            </div>
-                                            <a
-                                                href={`https://livefile.xesimg.com/programme/python_assets/844958913c304c040803a9d7f79f898e.html?name=${fileData?.name}&file=${fileData?.link.split('python_assets/')[1]}`}
-                                                className={cn(
-                                                    'p-2 rounded transition-colors shrink-0',
-                                                    isCurrentUser && 'text-white dark:text-black',
-                                                )}
-                                                title="下载"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <DownloadIcon size={18} />
-                                            </a>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
