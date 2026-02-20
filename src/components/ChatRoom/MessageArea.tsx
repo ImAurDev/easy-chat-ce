@@ -32,7 +32,7 @@ export function MessageArea({
     onInputChange,
     onSend,
     onKeyDown,
-    chatId
+    chatId,
 }: MessageAreaProps) {
     const nameMessage = messages.find(message => message.type === 'name');
     let roomName = nameMessage?.msg || `房间${chatId}`;
@@ -43,12 +43,8 @@ export function MessageArea({
     return (
         <div className="flex-1 flex flex-col">
             <div className="p-3 flex gap-2 border-b items-end">
-                <h1 className="text-lg font-bold">
-                    {roomName}
-                </h1>
-                <span className="text-gray-500 text-sm">
-                    ID: {chatId}
-                </span>
+                <h1 className="text-lg font-bold">{roomName}</h1>
+                <span className="text-gray-500 text-sm">ID: {chatId}</span>
             </div>
             <ScrollArea className="flex-1 h-[calc(100%-124px)] p-4 relative">
                 {messages.length === 0 ? (

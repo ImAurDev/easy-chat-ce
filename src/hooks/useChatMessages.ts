@@ -13,7 +13,7 @@ export const parseMessages = (allMessages: Record<string, string>): ChatMessage[
                 username: parsedJson.username || '未知用户',
                 msg: parsedJson.msg || '',
                 time,
-                type: parsedJson.type === 'name' ? 'name' : undefined,
+                type: parsedJson.type || undefined,
             });
         } catch (e) {
             toast.error('解析消息失败');
@@ -105,7 +105,7 @@ export function useChatMessages(chatId: number, username: string) {
             const payload = JSON.stringify({
                 username: username || '匿名用户',
                 msg: content.trim(),
-                time
+                time,
             } as Message);
 
             await xRef.current.sendNum(payload, String(time));

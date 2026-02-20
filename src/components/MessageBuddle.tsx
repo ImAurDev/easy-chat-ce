@@ -4,7 +4,7 @@ export type Message = {
     username: string;
     msg: string;
     time: number;
-    type?: 'name';
+    type?: 'name' | 'share';
 };
 
 type MessageBubbleProps = {
