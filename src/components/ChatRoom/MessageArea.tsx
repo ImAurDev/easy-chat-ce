@@ -59,7 +59,7 @@ export function MessageArea({
                 viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
             }
         }
-    }, [messages]);
+    }, []);
 
     const nameMessage = messages.find(message => message.type === 'name');
     let roomName = nameMessage?.msg || `房间${chatId}`;
