@@ -82,7 +82,7 @@ export function MessageArea({
 
     const nameMessage = messages.find(message => message.type === 'name');
     let roomName = nameMessage?.msg || `房间${chatId}`;
-    if (chatId === '26329675') {
+    if (chatId === '185655560') {
         roomName = '项目大群';
     }
 

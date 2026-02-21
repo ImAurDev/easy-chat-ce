@@ -68,7 +68,7 @@ export function ChatRoomSidebar({
                                             onClick={() => onRoomSelect(item.id)}
                                             className="w-full"
                                         >
-                                            {item.title}
+                                            {item.id === 185655560 ? '项目大群' : item.title}
                                         </Button>
                                     </ContextMenuTrigger>
                                     <ContextMenuContent>

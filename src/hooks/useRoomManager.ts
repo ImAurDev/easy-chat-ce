@@ -19,12 +19,15 @@ export function useRoomManager(initialChatId: number) {
 
     useEffect(() => {
         if (roomList.length === 0) {
-            const defaultRooms = [{ id: 26329675, title: '项目大群' }];
+            const defaultRooms = [{ id: 185655560, title: '项目大群' }];
             setRoomList(defaultRooms);
             localStorage.setItem('roomList', JSON.stringify(defaultRooms));
         } else {
             localStorage.setItem('roomList', JSON.stringify(roomList));
         }
+        let roomListStored = JSON.parse(localStorage.getItem('roomList') || '[]') as Room[];
+        roomListStored = roomListStored.filter(room => room.id !== 26329675);
+        localStorage.setItem('roomList', JSON.stringify(roomListStored));
     }, [roomList]);
 
     const createRoom = async (username: string): Promise<number | null> => {
@@ -77,7 +80,7 @@ export function useRoomManager(initialChatId: number) {
                 if (newList.length > 0) {
                     setChatId(newList[0].id);
                 } else {
-                    const defaultRoom = { id: 26329675, title: '项目大群' };
+                    const defaultRoom = { id: 185655560, title: '项目大群' };
                     setChatId(defaultRoom.id);
                     return [defaultRoom];
                 }
