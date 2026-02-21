@@ -28,8 +28,8 @@ function App() {
 
     const [input, setInput] = useState('');
 
-    const handleSend = async () => {
-        const success = await sendMessage(input);
+    const handleSend = async (quoteMessage?: ChatMessage) => {
+        const success = await sendMessage(input, quoteMessage);
         if (success) setInput('');
     };
 

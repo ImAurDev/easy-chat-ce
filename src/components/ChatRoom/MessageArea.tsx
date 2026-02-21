@@ -31,7 +31,7 @@ interface MessageAreaProps {
     isSending: boolean;
     isConnected: boolean;
     onInputChange: (value: string) => void;
-    onSend: () => void;
+    onSend: (quoteMessage?: ChatMessage) => void;
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     chatId: string;
     sendFile: (file: IFile) => void;
@@ -51,6 +51,7 @@ export function MessageArea({
     sendFile,
     handleRecall,
 }: MessageAreaProps) {
+    const [quoteMessage, setQuoteMessage] = useState<ChatMessage | undefined>(undefined);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const [userScrolled, setUserScrolled] = useState(false);
@@ -98,6 +99,8 @@ export function MessageArea({
                     messages.map((message, index) => (
                         <MessageBubble
                             key={`${message.time}-${index}`}
+                            setQuoteMessage={setQuoteMessage}
+                            quoteMessage={message.quoteTimeStamp ? messages.find(msg => msg.time === message.quoteTimeStamp) : undefined}
                             message={message}
                             currentUsername={currentUsername}
                             formatTime={formatTime}
@@ -107,45 +110,58 @@ export function MessageArea({
                 )}
             </ScrollArea>
 
-            <div className="p-3 flex gap-2 items-center bg-white border-t">
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button size="icon-sm" disabled={isSending || !isConnected}>
-                            <FileUpIcon />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>分享文件</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                <iframe src="https://new-xes-pan.netlify.app/upload" />
-                                <p>请将文件在这里上传，后来把数据填入下方表单</p>
-                                <Input placeholder="请输入给你的数据" ref={inputRef} />
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>取消</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={() => {
-                                    sendFile(JSON.parse(inputRef.current?.value || ''));
-                                }}
-                            >
-                                分享
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                <Input
-                    disabled={isSending || !isConnected}
-                    value={input}
-                    onChange={e => onInputChange(e.target.value)}
-                    onKeyDown={onKeyDown}
-                    placeholder="请输入文本"
-                    className="flex-1"
-                />
-                <Button onClick={onSend} size="icon-sm" disabled={isSending || !isConnected || input.trim() === ''}>
-                    <SendIcon className="h-4 w-4" />
-                </Button>
+            <div className="p-3 flex flex-col bg-white border-t">
+                {quoteMessage && (
+                    <div className='text-xs p-2 mb-2 rounded border-l-4 overflow-hidden bg-slate-50 border-slate-400 text-slate-800'>
+                        <p className='font-bold mb-0.5'>@{quoteMessage.username}</p>
+                        <div className='prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1'>
+                            {quoteMessage.msg}
+                        </div>
+                    </div>
+                )}
+                <div className='flex gap-2 items-center'>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button size="icon-sm" disabled={isSending || !isConnected}>
+                                <FileUpIcon />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>分享文件</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    <iframe src="https://new-xes-pan.netlify.app/upload" />
+                                    <p>请将文件在这里上传，后来把数据填入下方表单</p>
+                                    <Input placeholder="请输入给你的数据" ref={inputRef} />
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>取消</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={() => {
+                                        sendFile(JSON.parse(inputRef.current?.value || ''));
+                                    }}
+                                >
+                                    分享
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    <Input
+                        disabled={isSending || !isConnected}
+                        value={input}
+                        onChange={e => onInputChange(e.target.value)}
+                        onKeyDown={onKeyDown}
+                        placeholder="请输入文本"
+                        className="flex-1"
+                    />
+                    <Button onClick={() => {
+                        onSend(quoteMessage);
+                        setQuoteMessage(undefined);
+                    }} size="icon-sm" disabled={isSending || !isConnected || input.trim() === ''}>
+                        <SendIcon className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         </div>
     );

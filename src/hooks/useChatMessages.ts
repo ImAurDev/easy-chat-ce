@@ -35,6 +35,7 @@ export const parseMessages = (allMessages: Record<string, string>): ChatMessage[
                 time,
                 type: parsedJson.type || undefined,
                 recalled: parsedJson.recalled || false,
+                quoteTimeStamp: parsedJson.quoteTimeStamp || undefined,
             });
         } catch (e) {
             toast.error('解析消息失败');
@@ -118,7 +119,7 @@ export function useChatMessages(chatId: number, username: string) {
         }, 5000);
     };
 
-    const sendMessage = async (content: string): Promise<boolean> => {
+    const sendMessage = async (content: string, quoteMessage?: ChatMessage): Promise<boolean> => {
         if (!content.trim() || !xRef.current) return false;
 
         setIsSending(true);
@@ -129,6 +130,7 @@ export function useChatMessages(chatId: number, username: string) {
                 msg: content.trim(),
                 time,
                 recalled: false,
+                quoteTimeStamp: quoteMessage?.time,
             } as Message);
 
             await xRef.current.sendNum(payload, String(time));

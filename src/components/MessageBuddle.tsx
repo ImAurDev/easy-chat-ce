@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AvatarGroupCount } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import type { IFile } from '@/hooks/useChatMessages';
-import { DownloadIcon, FileTextIcon, UndoIcon, X } from 'lucide-react';
+import { DownloadIcon, FileTextIcon, QuoteIcon, UndoIcon, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import {
     ContextMenu,
@@ -18,13 +18,16 @@ export type Message = {
     time: number;
     type?: 'name' | 'share';
     recalled?: boolean;
+    quoteTimeStamp?: number;
 };
 
 type MessageBubbleProps = {
+    quoteMessage?: Message;
     message: Message;
     currentUsername: string;
     formatTime: (timestamp: number) => string;
     handleRecall: (message: Message) => void;
+    setQuoteMessage: (message: Message | undefined) => void;
 };
 
 const isImageFile = (filename: string): boolean => {
@@ -33,7 +36,7 @@ const isImageFile = (filename: string): boolean => {
     return ext ? imageExtensions.includes(ext) : false;
 };
 
-export const MessageBubble = ({ message, currentUsername, formatTime, handleRecall }: MessageBubbleProps) => {
+export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTime, handleRecall, setQuoteMessage }: MessageBubbleProps) => {
     const isCurrentUser = message.username === currentUsername;
     const [imageError, setImageError] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
@@ -90,6 +93,19 @@ export const MessageBubble = ({ message, currentUsername, formatTime, handleReca
                                             ],
                                         )}
                                     >
+                                        {quoteMessage && (
+                                            <div className={cn(
+                                                'text-xs p-2 mb-2 rounded border-l-4 overflow-hidden',
+                                                isCurrentUser
+                                                    ? 'bg-indigo-900/30 border-indigo-400 text-indigo-100'
+                                                    : 'bg-slate-50 border-slate-400 text-slate-800',
+                                            )}>
+                                                <p className='font-bold mb-0.5'>@{quoteMessage.username}</p>
+                                                <div className='prose prose-sm max-w-none prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1'>
+                                                    {quoteMessage.msg}
+                                                </div>
+                                            </div>
+                                        )}
                                         {message.type !== 'share' ? (
                                             <p className="text-sm wrap-break-word whitespace-pre-wrap">{message.msg}</p>
                                         ) : (
@@ -200,6 +216,10 @@ export const MessageBubble = ({ message, currentUsername, formatTime, handleReca
                                                     撤回
                                                 </ContextMenuItem>
                                             )}
+                                            <ContextMenuItem onClick={() => setQuoteMessage(message)}>
+                                                <QuoteIcon />
+                                                引用
+                                            </ContextMenuItem>
                                         </ContextMenuGroup>
                                     </ContextMenuContent>
                                 )}
