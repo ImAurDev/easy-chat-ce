@@ -210,7 +210,7 @@ export const MessageBubble = ({ quoteMessage, message, currentUsername, formatTi
                                                     下载
                                                 </ContextMenuItem>
                                             )}
-                                            {isCurrentUser && (
+                                            {isCurrentUser && !message.recalled && (
                                                 <ContextMenuItem onClick={() => handleRecall(message)}>
                                                     <UndoIcon />
                                                     撤回
