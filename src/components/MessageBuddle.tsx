@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AvatarGroupCount } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import type { IFile } from '@/hooks/useChatMessages';
-import { DownloadIcon, FileTextIcon, X } from 'lucide-react';
+import { DownloadIcon, FileTextIcon, UndoIcon, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import {
     ContextMenu,
@@ -189,10 +189,14 @@ export const MessageBubble = ({ message, currentUsername, formatTime, handleReca
                                     <ContextMenuContent>
                                         <ContextMenuGroup>
                                             {isImage && downloadUrl && (
-                                                <ContextMenuItem onClick={handleDownload}>下载</ContextMenuItem>
+                                                <ContextMenuItem onClick={handleDownload}>
+                                                    <DownloadIcon />
+                                                    下载
+                                                </ContextMenuItem>
                                             )}
                                             {isCurrentUser && (
                                                 <ContextMenuItem onClick={() => handleRecall(message)}>
+                                                    <UndoIcon />
                                                     撤回
                                                 </ContextMenuItem>
                                             )}
