@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FileUpIcon, SendIcon } from 'lucide-react';
+import { FileUpIcon, SendIcon, XIcon } from 'lucide-react';
 import { MessageBubble, type Message as ChatMessage } from '@/components/MessageBuddle';
 import {
     AlertDialog,
@@ -120,7 +120,7 @@ export function MessageArea({
 
             <div className="p-3 flex flex-col bg-white border-t shrink-0 max-h-45 overflow-y-auto">
                 {quoteMessage && (
-                    <div className="text-xs p-2 mb-2 rounded border-l-4 bg-slate-50 border-slate-400 text-slate-800">
+                    <div className="relative text-xs p-2 mb-2 rounded border-l-4 bg-slate-50 border-slate-400 text-slate-800">
                         <p className="font-bold mb-0.5">@{quoteMessage.username}</p>
                         <div className="prose prose-sm max-w-none max-h-24 overflow-y-auto prose-p:my-0 prose-headings:my-1 prose-ul:my-0 prose-ol:my-0 prose-li:my-0 prose-pre:my-1">
                             {quoteMessage.type !== 'share' ? (
@@ -132,6 +132,9 @@ export function MessageArea({
                                 />
                             )}
                         </div>
+                        <Button size="icon-xs" className="absolute top-1 right-1" onClick={() => setQuoteMessage(undefined)}>
+                            <XIcon />
+                        </Button>
                     </div>
                 )}
                 
