@@ -2,10 +2,11 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
 
 interface UploadFileProps {
-    setSelectedFile: (value: File) => void;
+    setSelectedFile: (value: File | null) => void;
+    disabled?: boolean;
 }
 
-export default function UploadFile({ setSelectedFile }: UploadFileProps) {
+export default function UploadFile({ setSelectedFile, disabled }: UploadFileProps) {
     return (
         <div>
             <Field>
@@ -19,6 +20,7 @@ export default function UploadFile({ setSelectedFile }: UploadFileProps) {
                             setSelectedFile(file);
                         }
                     }}
+                    disabled={disabled}
                 />
                 <FieldDescription>选择一个文件以供上传</FieldDescription>
             </Field>

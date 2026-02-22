@@ -18,6 +18,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog.tsx';
 import { useFileUpload } from '@/hooks/useFileUpload';
+import { Progress } from '@/components/ui/progress';
 
 const formatTime = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
@@ -57,7 +58,7 @@ export function MessageArea({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [userScrolled, setUserScrolled] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const { upload, isUploading } = useFileUpload();
+    const { upload, isUploading, uploadProgress } = useFileUpload();
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -176,8 +177,14 @@ export function MessageArea({
                             <DialogHeader>
                                 <DialogTitle>分享文件</DialogTitle>
                             </DialogHeader>
-                            <UploadFile setSelectedFile={setSelectedFile} />
-                            <DialogFooter>
+                            <UploadFile setSelectedFile={setSelectedFile} disabled={isUploading} />
+                            {isUploading && (
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Progress value={uploadProgress} className="flex-1 h-2" />
+                                    <span className="text-sm font-medium">{uploadProgress}%</span>
+                                </div>
+                            )}
+                            <DialogFooter className="mt-4">
                                 <DialogClose asChild>
                                     <Button variant="secondary" className="cursor-pointer" disabled={isUploading}>
                                         取消
